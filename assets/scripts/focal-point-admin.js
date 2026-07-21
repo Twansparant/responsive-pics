@@ -34,6 +34,7 @@ import FocalPicker from './modules/focal-picker';
 			wp.media.view.Attachment.Details.TwoColumn = TwoColumnView.extend({
 				// Add focalPoint change listener
 				initialize: function() {
+					TwoColumnView.prototype.initialize.apply(this, arguments);
 					this.model.on('change:focalPoint', this.change, this);
 				},
 				// Init extended template
@@ -55,11 +56,12 @@ import FocalPicker from './modules/focal-picker';
 						FocalPicker.positionFocalPoint(focalPoint);
 					}
 				},
-				// Update view on focal point js change
+				// Refresh the model (incl. compat field markup) after a focal point save.
+				// Don't detach/re-render the subviews: that rebuilds the sidebar DOM,
+				// losing focus and scroll position. The input values are already
+				// synced directly by FocalPicker.
 				update: function() {
-					this.views.detach();
 					this.model.fetch();
-					this.views.render();
 				}
 			});
 		}
@@ -69,9 +71,13 @@ import FocalPicker from './modules/focal-picker';
 		 */
 		if (AttachmentDetails) {
 			wp.media.view.Attachment.Details = AttachmentDetails.extend({
-				// Add focalPoint change listener
+				// Add focalPoint change listener.
+				// Call the Details initialize (not Attachment's) so
+				// rerenderOnModelChange stays false: a full re-render on every
+				// model change rebuilds the sidebar DOM, losing focus and
+				// scroll position while editing the focal point inputs
 				initialize: function() {
-					Attachment.prototype.initialize.apply(this, arguments);
+					AttachmentDetails.prototype.initialize.apply(this, arguments);
 					this.model.on('change:focalPoint', this.change, this);
 				},
 				// Init extended template
@@ -94,11 +100,12 @@ import FocalPicker from './modules/focal-picker';
 						FocalPicker.positionFocalPoint(focalPoint);
 					}
 				},
-				// Update view on focal point js change
+				// Refresh the model (incl. compat field markup) after a focal point save.
+				// Don't detach/re-render the subviews: that rebuilds the sidebar DOM,
+				// losing focus and scroll position. The input values are already
+				// synced directly by FocalPicker.
 				update: function() {
-					this.views.detach();
 					this.model.fetch();
-					this.views.render();
 				}
 			});
 		}
