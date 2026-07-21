@@ -41,12 +41,21 @@ const FocalPicker = {
 		});
 	},
 	positionFocalPoint: position => {
+		FocalPicker.position = position;
 		FocalPicker.view.model.set('focalPoint', position);
 		FocalPicker.point.css({
 			left: `${position?.x}%`,
 			top: `${position?.y}%`,
 			position: 'absolute'
 		});
+		FocalPicker.syncInputFields(position);
+	},
+	syncInputFields: position => {
+		// The compat fields view doesn't re-render on model changes,
+		// so update the sidebar inputs directly
+		const id = FocalPicker.view.model.get('id');
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).val(position?.x);
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).val(position?.y);
 	},
 	setFocalPoint: e => {
 		const pointYOffset = e.offsetY - FocalPicker.point.height() / 2;
