@@ -52,10 +52,29 @@ const FocalPicker = {
 	},
 	syncInputFields: position => {
 		// The compat fields view doesn't re-render on model changes,
-		// so update the sidebar inputs directly
+		// so update the sidebar inputs directly.
+		// Skip the focused input so we don't interfere while the user is typing.
 		const id = FocalPicker.view.model.get('id');
-		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).val(position?.x);
-		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).val(position?.y);
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).not(':focus').val(position?.x);
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).not(':focus').val(position?.y);
+	},
+	updateFromInputFields: () => {
+		if (!FocalPicker.view) {
+			return;
+		}
+
+		const id = FocalPicker.view.model.get('id');
+		const x  = parseFloat(jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).val());
+		const y  = parseFloat(jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).val());
+
+		if (isNaN(x) || isNaN(y)) {
+			return;
+		}
+
+		FocalPicker.positionFocalPoint({
+			x: Math.min(Math.max(x, 0), 100),
+			y: Math.min(Math.max(y, 0), 100)
+		});
 	},
 	setFocalPoint: e => {
 		const pointYOffset = e.offsetY - FocalPicker.point.height() / 2;

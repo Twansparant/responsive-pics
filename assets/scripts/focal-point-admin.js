@@ -4,6 +4,26 @@ import FocalPicker from './modules/focal-picker';
 
 	$(document).ready(() => {
 		/**
+		 * Update the focal point live while editing the sidebar inputs,
+		 * instead of waiting for the change event on blur.
+		 * Debounced so the point doesn't jump to intermediate
+		 * values (e.g. 3%) while typing a value like 36.7
+		 */
+		const debounce = (fn, wait) => {
+			let timer;
+			return (...args) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => fn(...args), wait);
+			};
+		};
+
+		$(document).on(
+			'input',
+			'input[name$="[responsive_pics_focal_point_x]"], input[name$="[responsive_pics_focal_point_y]"]',
+			debounce(FocalPicker.updateFromInputFields, 300)
+		);
+
+		/**
 		 * Attachment Details
 		 */
 		const initAttachmentDetails = element => {
