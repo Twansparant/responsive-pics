@@ -62,8 +62,8 @@ const FocalPicker = {
 		const pointXOffset = e.offsetX - FocalPicker.point.width() / 2;
 
 		// Convert absolute coordinates to percentages
-		FocalPicker.position.x = Math.round(pointXOffset / FocalPicker.picker.width() * 100);
-		FocalPicker.position.y = Math.round(pointYOffset / FocalPicker.picker.height() * 100);
+		FocalPicker.position.x = Math.round(pointXOffset / FocalPicker.picker.width() * 1000) / 10;
+		FocalPicker.position.y = Math.round(pointYOffset / FocalPicker.picker.height() * 1000) / 10;
 
 		FocalPicker.positionFocalPoint(FocalPicker.position);
 		FocalPicker.saveFocalPoint(FocalPicker.view.model);
@@ -100,8 +100,8 @@ const FocalPicker = {
 		jQuery('body').addClass('focal-point-dragging');
 	},
 	dragging: e => {
-		FocalPicker.position.x = Math.round(e.target.offsetLeft / FocalPicker.picker.width() * 100);
-		FocalPicker.position.y = Math.round(e.target.offsetTop / FocalPicker.picker.height() * 100);
+		FocalPicker.position.x = Math.round(e.target.offsetLeft / FocalPicker.picker.width() * 1000) / 10;
+		FocalPicker.position.y = Math.round(e.target.offsetTop / FocalPicker.picker.height() * 1000) / 10;
 	},
 	stopDrag: e => {
 		jQuery('body').removeClass('focal-point-dragging');
