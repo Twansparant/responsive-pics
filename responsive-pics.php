@@ -4,7 +4,7 @@
 	Plugin URI: https://responsive.pics
 	Description: Responsive Pics is a Wordpress tool for resizing images on the fly.
 	Author: Toine Kamps (previously Clarify)
-	Version: 1.9.5
+	Version: 1.9.6
 	Requires PHP: 7.0
 	Author URI: https://toinekamps.com
 	Copyright: Toine Kamps
@@ -39,7 +39,7 @@ class ResponsivePicsWP
 
 		// Variables
 		define('RESPONSIVE_PICS_DIR', plugin_dir_path(__FILE__));
-		define('RESPONSIVE_PICS_VERSION', '1.9.5');
+		define('RESPONSIVE_PICS_VERSION', '1.9.6');
 		define('RESPONSIVE_PICS_TEXTDOMAIN', 'responsive-pics');
 
 		// Init
