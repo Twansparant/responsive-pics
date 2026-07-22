@@ -6,6 +6,15 @@ $black: #000;
 $duration: .2s;
 $easing: cubic-bezier(.4, 0, .2, 1);
 
+// The compat fields get `padding: 4px 8px`, which offsets
+// the native number spinner arrows from the right edge
+.compat-field-responsive_pics_focal_point_x,
+.compat-field-responsive_pics_focal_point_y {
+	input[type='number'] {
+		padding-right: 2px;
+	}
+}
+
 .image-focal {
 	position: relative;
 	display: flex;

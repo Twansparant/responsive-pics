@@ -4,6 +4,26 @@ import FocalPicker from './modules/focal-picker';
 
 	$(document).ready(() => {
 		/**
+		 * Update the focal point live while editing the sidebar inputs,
+		 * instead of waiting for the change event on blur.
+		 * Debounced so the point doesn't jump to intermediate
+		 * values (e.g. 3%) while typing a value like 36.7
+		 */
+		const debounce = (fn, wait) => {
+			let timer;
+			return (...args) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => fn(...args), wait);
+			};
+		};
+
+		$(document).on(
+			'input',
+			'input[name$="[responsive_pics_focal_point_x]"], input[name$="[responsive_pics_focal_point_y]"]',
+			debounce(FocalPicker.updateFromInputFields, 300)
+		);
+
+		/**
 		 * Attachment Details
 		 */
 		const initAttachmentDetails = element => {
@@ -34,6 +54,7 @@ import FocalPicker from './modules/focal-picker';
 			wp.media.view.Attachment.Details.TwoColumn = TwoColumnView.extend({
 				// Add focalPoint change listener
 				initialize: function() {
+					TwoColumnView.prototype.initialize.apply(this, arguments);
 					this.model.on('change:focalPoint', this.change, this);
 				},
 				// Init extended template
@@ -55,11 +76,12 @@ import FocalPicker from './modules/focal-picker';
 						FocalPicker.positionFocalPoint(focalPoint);
 					}
 				},
-				// Update view on focal point js change
+				// Refresh the model (incl. compat field markup) after a focal point save.
+				// Don't detach/re-render the subviews: that rebuilds the sidebar DOM,
+				// losing focus and scroll position. The input values are already
+				// synced directly by FocalPicker.
 				update: function() {
-					this.views.detach();
 					this.model.fetch();
-					this.views.render();
 				}
 			});
 		}
@@ -69,9 +91,13 @@ import FocalPicker from './modules/focal-picker';
 		 */
 		if (AttachmentDetails) {
 			wp.media.view.Attachment.Details = AttachmentDetails.extend({
-				// Add focalPoint change listener
+				// Add focalPoint change listener.
+				// Call the Details initialize (not Attachment's) so
+				// rerenderOnModelChange stays false: a full re-render on every
+				// model change rebuilds the sidebar DOM, losing focus and
+				// scroll position while editing the focal point inputs
 				initialize: function() {
-					Attachment.prototype.initialize.apply(this, arguments);
+					AttachmentDetails.prototype.initialize.apply(this, arguments);
 					this.model.on('change:focalPoint', this.change, this);
 				},
 				// Init extended template
@@ -94,11 +120,12 @@ import FocalPicker from './modules/focal-picker';
 						FocalPicker.positionFocalPoint(focalPoint);
 					}
 				},
-				// Update view on focal point js change
+				// Refresh the model (incl. compat field markup) after a focal point save.
+				// Don't detach/re-render the subviews: that rebuilds the sidebar DOM,
+				// losing focus and scroll position. The input values are already
+				// synced directly by FocalPicker.
 				update: function() {
-					this.views.detach();
 					this.model.fetch();
-					this.views.render();
 				}
 			});
 		}

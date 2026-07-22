@@ -54,20 +54,36 @@ class RP_Focal_Point extends ResponsivePics
 		}
 
 		$focal_point = get_post_meta($post->ID, 'responsive_pics_focal_point', true);
+		$focal_x     = isset($focal_point['x']) ? (float) $focal_point['x'] : 50;
+		$focal_y     = isset($focal_point['y']) ? (float) $focal_point['y'] : 50;
+
 		$form_fields['responsive_pics_focal_point_x'] = array(
 			'label'      => 'Focal Point X-axis (%)',
-			'input'      => 'number',
-			'value'      => isset($focal_point['x']) ? $focal_point['x'] : 50,
+			'input'      => 'html',
+			'html'       => self::focal_point_number_input($post->ID, 'responsive_pics_focal_point_x', $focal_x),
 			'exclusions' => array('audio', 'video')
 		);
 		$form_fields['responsive_pics_focal_point_y'] = array(
 			'label'      => 'Focal Point Y-axis (%)',
-			'input'      => 'number',
-			'value'      => isset($focal_point['y']) ? $focal_point['y'] : 50,
+			'input'      => 'html',
+			'html'       => self::focal_point_number_input($post->ID, 'responsive_pics_focal_point_y', $focal_y),
 			'exclusions' => array('audio', 'video')
 		);
 
 		return $form_fields;
+	}
+
+	/**
+	 * Render a number input for a focal point axis,
+	 * following the name/id conventions of get_compat_media_markup()
+	 */
+	private static function focal_point_number_input($attachment_id, $key, $value) {
+		return sprintf(
+			"<input type='number' class='text' id='%s' name='%s' value='%s' step='0.1' min='0' max='100' />",
+			esc_attr("attachments-{$attachment_id}-{$key}"),
+			esc_attr("attachments[{$attachment_id}][{$key}]"),
+			esc_attr($value)
+		);
 	}
 
 	/**
@@ -79,8 +95,8 @@ class RP_Focal_Point extends ResponsivePics
 			$focal_point_x = $attachment['responsive_pics_focal_point_x'];
 			$focal_point_y = $attachment['responsive_pics_focal_point_y'];
 			$focal_point   = [
-				'x' => round($focal_point_x, 0),
-				'y' => round($focal_point_y, 0)
+				'x' => round((float) $focal_point_x, 1),
+				'y' => round((float) $focal_point_y, 1)
 			];
 			update_post_meta($post['ID'], 'responsive_pics_focal_point', $focal_point);
 		} else {
@@ -148,8 +164,11 @@ class RP_Focal_Point extends ResponsivePics
 		$post_id     = isset($attachment['id']) ? $attachment['id'] : null;
 
 		// Save the focal point if there is one
-		if ($post_id && is_array($focal_point)) {
-			update_post_meta($post_id, 'responsive_pics_focal_point', $focal_point);
+		if ($post_id && is_array($focal_point) && isset($focal_point['x'], $focal_point['y'])) {
+			update_post_meta($post_id, 'responsive_pics_focal_point', [
+				'x' => round((float) $focal_point['x'], 1),
+				'y' => round((float) $focal_point['y'], 1)
+			]);
 			wp_send_json_success();
 		}
 

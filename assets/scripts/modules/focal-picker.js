@@ -41,11 +41,39 @@ const FocalPicker = {
 		});
 	},
 	positionFocalPoint: position => {
+		FocalPicker.position = position;
 		FocalPicker.view.model.set('focalPoint', position);
 		FocalPicker.point.css({
 			left: `${position?.x}%`,
 			top: `${position?.y}%`,
 			position: 'absolute'
+		});
+		FocalPicker.syncInputFields(position);
+	},
+	syncInputFields: position => {
+		// The compat fields view doesn't re-render on model changes,
+		// so update the sidebar inputs directly.
+		// Skip the focused input so we don't interfere while the user is typing.
+		const id = FocalPicker.view.model.get('id');
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).not(':focus').val(position?.x);
+		jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).not(':focus').val(position?.y);
+	},
+	updateFromInputFields: () => {
+		if (!FocalPicker.view) {
+			return;
+		}
+
+		const id = FocalPicker.view.model.get('id');
+		const x  = parseFloat(jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_x]"]`).val());
+		const y  = parseFloat(jQuery(`input[name="attachments[${id}][responsive_pics_focal_point_y]"]`).val());
+
+		if (isNaN(x) || isNaN(y)) {
+			return;
+		}
+
+		FocalPicker.positionFocalPoint({
+			x: Math.min(Math.max(x, 0), 100),
+			y: Math.min(Math.max(y, 0), 100)
 		});
 	},
 	setFocalPoint: e => {
@@ -53,8 +81,8 @@ const FocalPicker = {
 		const pointXOffset = e.offsetX - FocalPicker.point.width() / 2;
 
 		// Convert absolute coordinates to percentages
-		FocalPicker.position.x = Math.round(pointXOffset / FocalPicker.picker.width() * 100);
-		FocalPicker.position.y = Math.round(pointYOffset / FocalPicker.picker.height() * 100);
+		FocalPicker.position.x = Math.round(pointXOffset / FocalPicker.picker.width() * 1000) / 10;
+		FocalPicker.position.y = Math.round(pointYOffset / FocalPicker.picker.height() * 1000) / 10;
 
 		FocalPicker.positionFocalPoint(FocalPicker.position);
 		FocalPicker.saveFocalPoint(FocalPicker.view.model);
@@ -91,8 +119,8 @@ const FocalPicker = {
 		jQuery('body').addClass('focal-point-dragging');
 	},
 	dragging: e => {
-		FocalPicker.position.x = Math.round(e.target.offsetLeft / FocalPicker.picker.width() * 100);
-		FocalPicker.position.y = Math.round(e.target.offsetTop / FocalPicker.picker.height() * 100);
+		FocalPicker.position.x = Math.round(e.target.offsetLeft / FocalPicker.picker.width() * 1000) / 10;
+		FocalPicker.position.y = Math.round(e.target.offsetTop / FocalPicker.picker.height() * 1000) / 10;
 	},
 	stopDrag: e => {
 		jQuery('body').removeClass('focal-point-dragging');
