@@ -11,7 +11,7 @@
   "devDependencies": {
     "@wpackio/scripts": "^6.4.0",
     "cssnano": "^8.0.2",
-    "postcss": "^8.5.21",
+    "postcss": "^8.5.26",
     "sass": "^1.101.3"
   },
   "dependencies": {
